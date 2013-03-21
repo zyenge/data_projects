@@ -1,0 +1,8 @@
+{
+    "train_data_path": "/Users/zyenge/Documents/python_project/Kaggle/Train_rev1.csv",
+    "valid_data_path": "/Users/zyenge/Documents/python_project/Kaggle/Valid_rev1.csv",
+    "model_path": "/Users/zyenge/Documents/python_project/Kaggle/Model/train_2.pickle",
+    "prediction_path": "/Users/zyenge/Documents/python_project/Kaggle/Prediction/train_1.csv",
+    "test_model_path": "/Users/zyenge/Documents/python_project/Kaggle/Model/train_2.pickle",
+    "test_prediction_path": "/Users/zyenge/Documents/python_project/Kaggle/Prediction/train_2.csv"
+}
