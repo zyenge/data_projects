@@ -29,11 +29,14 @@ classifier = RandomForestRegressor(n_estimators=100,
                                             random_state=None,oob_score=True)
 print'training model'
 classifier.fit(x_train,y_train)
-print("Saving the classifier")
-data_io.save_model(classifier)
 
+print 'predicting'
 predictions_valid = classifier.predict(x_valid)   
 predictions_valid = predictions_valid.reshape(len(predictions), 1)
 
 print("Writing predictions to file")
 data_io.write_submission(predictions_valid)
+
+print("Saving the classifier")
+data_io.save_model(classifier)
+
