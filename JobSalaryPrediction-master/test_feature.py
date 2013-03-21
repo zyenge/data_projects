@@ -16,12 +16,12 @@ def get_feature(rawdata):
     enc_sub.append([bin(i),bin(j)])
   enc_sub=np.array(enc_sub)
   extracted = []
-  features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(max_features=50,min_df=1, stop_words='english')),
-              ('Title-Bag of Words', rawdata['Title'], CountVectorizer(max_features=50,binary=True)),
-              ('LocationRaw-Bag of Words', rawdata['LocationRaw'], CountVectorizer(max_features=50, min_df=1, stop_words=['uk'],binary=True)),
-              ('LocationNormalized-Bag of Words', rawdata['LocationNormalized'], CountVectorizer(max_features=50, min_df=1)),
-              ('Company words',enc_sub[:,0],CountVectorizer(max_features=50)),
-               ('SourceName words',enc_sub[:,1],CountVectorizer(max_features=50))]
+  features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(max_features=200,min_df=1, stop_words='english')),
+              ('Title-Bag of Words', rawdata['Title'], CountVectorizer(max_features=200,binary=True)),
+              ('LocationRaw-Bag of Words', rawdata['LocationRaw'], CountVectorizer(max_features=200, min_df=1, stop_words=['uk'],binary=True)),
+              ('LocationNormalized-Bag of Words', rawdata['LocationNormalized'], CountVectorizer(max_features=200, min_df=1)),
+              ('Company words',enc_sub[:,0],CountVectorizer(max_features=200)),
+               ('SourceName words',enc_sub[:,1],CountVectorizer(max_features=200))]
   
   for badwords, column, extractor in features:
     extractor.fit(column, y=None)
@@ -38,7 +38,7 @@ def get_feature(rawdata):
   return extracted
 
 def get_pca_feature(rawdata):
-  num_compo=50
+  num_compo=200
   rpca=RandomizedPCA(n_components=num_compo)
   reduced=[]
   features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(min_df=1, stop_words='english')),
