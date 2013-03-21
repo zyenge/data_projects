@@ -19,7 +19,7 @@ def get_feature(rawdata):
               ('Title-Bag of Words', rawdata['Title'], CountVectorizer(max_features=200,binary=True)),
               ('LocationRaw-Bag of Words', rawdata['LocationRaw'], CountVectorizer(max_features=200, min_df=1, stop_words=['uk'],binary=True)),
               ('LocationNormalized-Bag of Words', rawdata['LocationNormalized'], CountVectorizer(max_features=200, min_df=1)),
-              ('Company words',enc_sub[:,0],CountVectorizer(max_features=200)),
+              ('Company bag of words',enc_sub[:,0],CountVectorizer(max_features=200)),
                ('SourceName words',enc_sub[:,1],CountVectorizer(max_features=200))]
   
   for badwords, column, extractor in features:
