@@ -32,7 +32,7 @@ classifier.fit(x_train,y_train)
 
 print 'predicting'
 predictions_valid = classifier.predict(x_valid)   
-predictions_valid = predictions_valid.reshape(len(predictions), 1)
+predictions_valid = predictions_valid.reshape(len(predictions_valid), 1)
 
 print("Writing predictions to file")
 data_io.write_submission(predictions_valid)
