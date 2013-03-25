@@ -1,48 +1,62 @@
-import data_io
+import test_data_io
 import pickle
 import test_feature
-from sklearn import linear_model
-from sklearn.pipeline import Pipeline
-from sklearn import cross_validation
-from sklearn.grid_search import GridSearchCV
 import numpy as np
-from sklearn.base import BaseEstimator
-from HTMLParser import HTMLParser
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.pipeline import Pipeline
-
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.svm import SVR
+from weight_boosting import AdaBoostRegressor
 ##################################################################### trainning
-train = data_io.get_train_df()
+num_test=1000
+print 'reading training data'
+train = test_data_io.get_train_df()
+
+test=train["SalaryNormalized"][:-num_test]
+print train.shape[0], test.shape
+print 'select features'
 train_feature=test_feature.get_feature(train)
-pca_feature=test_feature.get_pca_feature(train)
-print 'training data shape is ', train_feature.shape, ' and ', pca_feature.shape
-num_test=10000
+#pca_feature=test_feature.get_pca_feature(train)
+#np.save('trainingFeatures100k.npy',pca_feature)
+#print 'training data shape is ', train_feature.shape, ' and ', pca_feature.shape
+pca_feature=np.load('trainingFeatures100k.npy')
+pca_feature=pca_feature[:train.shape[0],]
 training_1=train_feature[:-num_test,]
 testing_1=train_feature[-num_test:,]
 training_2=pca_feature[:-num_test,]
 testing_2=pca_feature[-num_test:,]
 
 print("Extracting features and training model")
-classifier_1 = RandomForestRegressor(n_estimators=200, 
-                                                verbose=2,
-                                                n_jobs=1,
-                                            random_state=None,oob_score=True)
-classifier_2 = RandomForestRegressor(n_estimators=200, verbose=2, n_jobs=1,random_state=None,oob_score=True)
+#Tree=DecisionTreeRegressor(max_depth=None)
+boostTree=AdaBoostRegressor(DecisionTreeRegressor(max_depth=None), n_estimators=50, random_state=None)
+boostSVR=AdaBoostRegressor(SVR(), n_estimators=50, random_state=None)
+rf = RandomForestRegressor(n_estimators=50,verbose=2,n_jobs=2,random_state=None,oob_score=True)
 
-classifier_1.fit(training_1, train["SalaryNormalized"][:-num_test])
-classifier_2.fit(training_2, train["SalaryNormalized"][:-num_test])
-print 'fitting socre is ', classifier_1.score(testing_1, train["SalaryNormalized"][-num_test:]), ' and ', classifier_2.score(testing_2, train["SalaryNormalized"][-num_test:])
-
-predictions_1 = classifier_1.predict(testing_1)
-predictions_1 = predictions_1.flatten()
+MAE_list=[]
+score_list=[]
 orig=train["SalaryNormalized"][-num_test:]
-diff_1=np.absolute(predictions_1-orig.flatten())
-MAE_1=diff_1.mean()
+model_list=['RF','RF_PCA','BoostTree_pca', 'BoostSVR_pca']
 
-predictions_2 = classifier_2.predict(testing_2)
-predictions_2 = predictions_2.flatten()
-diff_2=np.absolute(predictions_2-orig.flatten())
-MAE_2=diff_2.mean()
+#for RF:
+print 'fitting rf without pca'
+rf.fit(training_1, train["SalaryNormalized"][:-num_test])
+score=rf.score(testing_1,train["SalaryNormalized"][-num_test:])
+predictions = rf.predict(testing_1)
+predictions = predictions.flatten()
+diff=np.absolute(predictions-orig.flatten())
+MAE=diff.mean()
+MAE_list.append(MAE)
+score_list.append(score)
 
-print 'mean absolute avg for selecting feature and reducing feature is ', MAE_1, ' and ', MAE_2
-
+classifiers=[rf, boostTree,boostSVR]
+for clf in classifiers:
+  clf.fit(training_2, train["SalaryNormalized"][:-num_test])
+  score=clf.score(testing_2,train["SalaryNormalized"][-num_test:])
+  print 'fitting score is ', score
+  predictions = clf.predict(testing_2)
+  predictions = predictions.flatten()
+  diff=np.absolute(predictions-orig.flatten())
+  MAE=diff.mean()
+  print 'mean abs error is ', MAE
+  MAE_list.append(MAE)
+  score_list.append(score)
+print model_list, score_list, MAE_list

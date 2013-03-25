@@ -5,11 +5,12 @@ import numpy as np
 from sklearn.decomposition import RandomizedPCA
 from sklearn.svm import SVR
 from sklearn import feature_selection
+import time
 
 num_compo=50
 
 def get_feature(rawdata):
-  
+  start=time.clock()
   le = preprocessing.LabelEncoder()
   length=len(rawdata['Company'])
   sub_feature=np.concatenate([le.fit_transform(rawdata['Company']),le.fit_transform(rawdata['SourceName'])]).reshape(length,2)
@@ -25,7 +26,7 @@ def get_feature(rawdata):
               ('Company words',enc_sub[:,0],CountVectorizer(max_features=num_compo)),
                ('SourceName words',enc_sub[:,1],CountVectorizer(max_features=num_compo))]
   
-  for badwords, column, extractor in features:
+  for bagwords, column, extractor in features:
     extractor.fit(column, y=None)
     #print extractor.get_feature_names(), len(extractor.get_feature_names())
     fea = extractor.transform(column)
@@ -37,9 +38,11 @@ def get_feature(rawdata):
     extracted=np.concatenate(extracted, axis=1)
   else: 
     extracted[0]
-  return extracted
+  eclipsed=time.clock()-start
+  return (extracted, eclipsed)
 
 def get_pca_feature(rawdata):
+  start=time.clock()
   rpca=RandomizedPCA(n_components=num_compo)
   reduced=[]
   features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(min_df=1, stop_words='english')),
@@ -57,9 +60,33 @@ def get_pca_feature(rawdata):
     else:
       reduced.append(fea_ex.toarray())
   reduced=np.concatenate(reduced, axis=1)
-  return reduced
+  eclipsed=time.clock()-start
+  return (reduced,eclipsed)
 
 def get_kBest_feature(rawdata):
+  start=time.clock()
+  selector=feature_selection.SelectKBest(score_func=feature_selection.f_regression,k=num_compo)
+  train_len=rawdata.shape[0]
+  selected = np.zeros((train_len,1))
+  print type(selected)
+  features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(min_df=1, stop_words='english')),
+              ('Title-Bag of Words', rawdata['Title'], CountVectorizer(binary=True)),
+              ('LocationRaw-Bag of Words', rawdata['LocationRaw'], CountVectorizer(min_df=1, stop_words=['uk'],binary=True)),
+              ('LocationNormalized-Bag of Words', rawdata['LocationNormalized'], CountVectorizer(min_df=1)),
+              ('Company words',rawdata['Company'],CountVectorizer()),
+               ('SourceName words',rawdata['SourceName'],CountVectorizer())]
+  for badwords, column, extractor in features:
+    extractor.fit(column, y=None)
+    fea_kBest = extractor.transform(column)
+    if fea_kBest.shape[1] > num_compo:
+      selector.fit(fea_kBest.toarray(), rawdata["SalaryNormalized"])
+      selected_features=selector.transform(fea_kBest.toarray())
+      selected=np.concatenate([selected,selected_features], axis=1)
+  eclipsed=time.clock()-start
+  return (selected[:,1:],eclipsed)
+
+def get_chi2_feature(rawdata):
+  start=time.clock()
   selector=feature_selection.SelectKBest(score_func=feature_selection.chi2,k=num_compo)
   train_len=rawdata.shape[0]
   selected = np.zeros((train_len,1))
@@ -77,4 +104,27 @@ def get_kBest_feature(rawdata):
       selector.fit(fea_kBest.toarray(), rawdata["SalaryNormalized"])
       selected_features=selector.transform(fea_kBest.toarray())
       selected=np.concatenate([selected,selected_features], axis=1)
-  return selected[:,1:]
+  eclipsed=time.clock()-start
+  return (selected[:,1:], eclipsed)
+
+def get_f_feature(rawdata):
+  start=time.clock()
+  selector=feature_selection.SelectKBest(score_func=feature_selection.f_classif,k=num_compo)
+  train_len=rawdata.shape[0]
+  selected = np.zeros((train_len,1))
+  print type(selected)
+  features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(min_df=1, stop_words='english')),
+              ('Title-Bag of Words', rawdata['Title'], CountVectorizer(binary=True)),
+              ('LocationRaw-Bag of Words', rawdata['LocationRaw'], CountVectorizer(min_df=1, stop_words=['uk'],binary=True)),
+              ('LocationNormalized-Bag of Words', rawdata['LocationNormalized'], CountVectorizer(min_df=1)),
+              ('Company words',rawdata['Company'],CountVectorizer()),
+               ('SourceName words',rawdata['SourceName'],CountVectorizer())]
+  for badwords, column, extractor in features:
+    extractor.fit(column, y=None)
+    fea_kBest = extractor.transform(column)
+    if fea_kBest.shape[1] > num_compo:
+      selector.fit(fea_kBest.toarray(), rawdata["SalaryNormalized"])
+      selected_features=selector.transform(fea_kBest.toarray())
+      selected=np.concatenate([selected,selected_features], axis=1)
+  eclipsed=time.clock()-start
+  return (selected[:,1:], eclipsed)
