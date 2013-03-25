@@ -7,25 +7,14 @@ from sklearn.svm import SVR
 from sklearn import feature_selection
 import time
 
-num_compo=50
 
-def get_feature(rawdata):
+num_compo=50
+           
+def get_feature(rawdata,features):
+  print 'print feature selecting'
   start=time.clock()
-  le = preprocessing.LabelEncoder()
-  length=len(rawdata['Company'])
-  sub_feature=np.concatenate([le.fit_transform(rawdata['Company']),le.fit_transform(rawdata['SourceName'])]).reshape(length,2)
-  enc_sub=[]
-  for i, j in sub_feature:
-    enc_sub.append([bin(i),bin(j)])
-  enc_sub=np.array(enc_sub)
   extracted = []
-  features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(max_features=num_compo,min_df=1, stop_words='english')),
-              ('Title-Bag of Words', rawdata['Title'], CountVectorizer(max_features=num_compo,binary=True)),
-              ('LocationRaw-Bag of Words', rawdata['LocationRaw'], CountVectorizer(max_features=num_compo, min_df=1, stop_words=['uk'],binary=True)),
-              ('LocationNormalized-Bag of Words', rawdata['LocationNormalized'], CountVectorizer(max_features=num_compo, min_df=1)),
-              ('Company words',enc_sub[:,0],CountVectorizer(max_features=num_compo)),
-               ('SourceName words',enc_sub[:,1],CountVectorizer(max_features=num_compo))]
-  
+
   for bagwords, column, extractor in features:
     extractor.fit(column, y=None)
     #print extractor.get_feature_names(), len(extractor.get_feature_names())
@@ -41,16 +30,11 @@ def get_feature(rawdata):
   eclipsed=time.clock()-start
   return (extracted, eclipsed)
 
-def get_pca_feature(rawdata):
+def get_pca_feature(rawdata,features):
+  print 'print feature selecting'
   start=time.clock()
   rpca=RandomizedPCA(n_components=num_compo)
   reduced=[]
-  features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(min_df=1, stop_words='english')),
-              ('Title-Bag of Words', rawdata['Title'], CountVectorizer(binary=True)),
-              ('LocationRaw-Bag of Words', rawdata['LocationRaw'], CountVectorizer(min_df=1, stop_words=['uk'],binary=True)),
-              ('LocationNormalized-Bag of Words', rawdata['LocationNormalized'], CountVectorizer(min_df=1)),
-              ('Company words',rawdata['Company'],CountVectorizer()),
-               ('SourceName words',rawdata['SourceName'],CountVectorizer())]
   for badwords, column, extractor in features:
     extractor.fit(column, y=None)
     fea_ex = extractor.transform(column)
@@ -63,18 +47,12 @@ def get_pca_feature(rawdata):
   eclipsed=time.clock()-start
   return (reduced,eclipsed)
 
-def get_kBest_feature(rawdata):
+def get_kBest_feature(rawdata,features):
+  print 'print feature selecting'
   start=time.clock()
   selector=feature_selection.SelectKBest(score_func=feature_selection.f_regression,k=num_compo)
   train_len=rawdata.shape[0]
   selected = np.zeros((train_len,1))
-  print type(selected)
-  features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(min_df=1, stop_words='english')),
-              ('Title-Bag of Words', rawdata['Title'], CountVectorizer(binary=True)),
-              ('LocationRaw-Bag of Words', rawdata['LocationRaw'], CountVectorizer(min_df=1, stop_words=['uk'],binary=True)),
-              ('LocationNormalized-Bag of Words', rawdata['LocationNormalized'], CountVectorizer(min_df=1)),
-              ('Company words',rawdata['Company'],CountVectorizer()),
-               ('SourceName words',rawdata['SourceName'],CountVectorizer())]
   for badwords, column, extractor in features:
     extractor.fit(column, y=None)
     fea_kBest = extractor.transform(column)
@@ -85,18 +63,12 @@ def get_kBest_feature(rawdata):
   eclipsed=time.clock()-start
   return (selected[:,1:],eclipsed)
 
-def get_chi2_feature(rawdata):
+def get_chi2_feature(rawdata,features):
+  print 'print feature selecting'
   start=time.clock()
   selector=feature_selection.SelectKBest(score_func=feature_selection.chi2,k=num_compo)
   train_len=rawdata.shape[0]
   selected = np.zeros((train_len,1))
-  print type(selected)
-  features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(min_df=1, stop_words='english')),
-              ('Title-Bag of Words', rawdata['Title'], CountVectorizer(binary=True)),
-              ('LocationRaw-Bag of Words', rawdata['LocationRaw'], CountVectorizer(min_df=1, stop_words=['uk'],binary=True)),
-              ('LocationNormalized-Bag of Words', rawdata['LocationNormalized'], CountVectorizer(min_df=1)),
-              ('Company words',rawdata['Company'],CountVectorizer()),
-               ('SourceName words',rawdata['SourceName'],CountVectorizer())]
   for badwords, column, extractor in features:
     extractor.fit(column, y=None)
     fea_kBest = extractor.transform(column)
@@ -107,18 +79,12 @@ def get_chi2_feature(rawdata):
   eclipsed=time.clock()-start
   return (selected[:,1:], eclipsed)
 
-def get_f_feature(rawdata):
+def get_f_feature(rawdata,features):
+  print 'print feature selecting'
   start=time.clock()
   selector=feature_selection.SelectKBest(score_func=feature_selection.f_classif,k=num_compo)
   train_len=rawdata.shape[0]
   selected = np.zeros((train_len,1))
-  print type(selected)
-  features = [('FullDescription-Bag of Words', rawdata['FullDescription'], CountVectorizer(min_df=1, stop_words='english')),
-              ('Title-Bag of Words', rawdata['Title'], CountVectorizer(binary=True)),
-              ('LocationRaw-Bag of Words', rawdata['LocationRaw'], CountVectorizer(min_df=1, stop_words=['uk'],binary=True)),
-              ('LocationNormalized-Bag of Words', rawdata['LocationNormalized'], CountVectorizer(min_df=1)),
-              ('Company words',rawdata['Company'],CountVectorizer()),
-               ('SourceName words',rawdata['SourceName'],CountVectorizer())]
   for badwords, column, extractor in features:
     extractor.fit(column, y=None)
     fea_kBest = extractor.transform(column)
