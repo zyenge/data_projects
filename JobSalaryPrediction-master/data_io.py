@@ -25,11 +25,11 @@ converters = { "FullDescription" : identity
 
 def get_train_df():
     train_path = get_paths()["train_data_path"]
-    return pd.read_csv(train_path, converters=converters)
+    return pd.read_csv(train_path, converters=converters,nrows=1000)
     
 def get_valid_df():
      valid_path = get_paths()["valid_data_path"]
-     return pd.read_csv(valid_path, converters=converters)
+     return pd.read_csv(valid_path, converters=converters,nrows=100)
 
 def save_model(model):
     out_path = get_paths()["model_path"]
