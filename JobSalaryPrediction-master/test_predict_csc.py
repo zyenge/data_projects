@@ -1,4 +1,5 @@
 import data_io
+import csv
 import pickle
 import numpy as np
 import pandas as pd
@@ -15,6 +16,7 @@ import time
 print 'reading training data'
 train = data_io.get_train_df()
 train_len=train.shape[0]
+print train_len
 ##################################################################### predicting
 print 'reading valid data'
 valid = data_io.get_valid_df()
@@ -88,9 +90,15 @@ print 'predicting'
 predictions_valid = classifier.predict(x_valid)   
 predictions_valid = predictions_valid.reshape(len(predictions_valid), 1)
 
+def write_submission(predictions):
+    prediction_path= "/home/zhen/python/Kaggle/Prediction/ada_csc.csv"
+    writer = csv.writer(open(prediction_path, "w"), lineterminator="\n")
+    rows = [x for x in zip(valid["Id"], predictions.flatten())]
+    writer.writerow(("Id", "SalaryNormalized"))
+    writer.writerows(rows)
 print("Writing predictions to file")
-data_io.write_submission(predictions_valid)
+write_submission(predictions_valid)
 
 print("Saving the classifier")
-data_io.save_model(classifier)
+pickle.dump(classifier, open("/home/zhen/python/Kaggle/Model/ada_csc.pickle", "w"))
 

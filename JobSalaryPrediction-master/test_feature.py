@@ -6,9 +6,11 @@ from sklearn.decomposition import RandomizedPCA
 from sklearn.svm import SVR
 from sklearn import feature_selection
 import time
+from scipy.sparse import *
+import sys
 
 
-num_compo=50
+num_compo=100
            
 def get_feature(rawdata,features):
   print ' feature selecting'
@@ -127,8 +129,8 @@ def newk_best(rawdata, features):
           kBest_index.append(sorted_array[-i-1,1])
         if len(kBest_index)==num_compo:
           break
-      #print 'number of features selected is ', len(kBest_index)
-      #print 'the p values are ', p_valueList
+      print 'number of features selected is ', len(kBest_index)
+      print 'the p values are ', p_valueList
       writeout="/home/zhen/python/Kaggle/pValue/p_value_%i_%s.npy" %(num, bagwords)
       np.save(writeout, p_valueList)
       for i in kBest_index:
