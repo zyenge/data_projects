@@ -100,6 +100,7 @@ def get_f_feature(rawdata,features):
 def newk_best(rawdata, features):
   print 'new k best feature selecting'
   start=time.clock()
+  num=rawdata.shape[0]
   selected = np.zeros((num,1))
   for bagwords, column, extractor in features:
     extractor.fit(column, y=None)
@@ -131,7 +132,7 @@ def newk_best(rawdata, features):
           break
       print 'number of features selected is ', len(kBest_index)
       print 'the p values are ', p_valueList
-      writeout="/home/zhen/python/Kaggle/pValue/p_value_%i_%s.npy" %(num, bagwords)
+      #writeout="/home/zhen/python/Kaggle/pValue/p_value_%i_%s.npy" %(num, bagwords)
       np.save(writeout, p_valueList)
       for i in kBest_index:
         kbest_array=np.concatenate([kbest_array,fea_kBest.getcol(i).todense()],axis=1)
