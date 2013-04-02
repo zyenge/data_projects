@@ -3,7 +3,6 @@ import csv
 import pickle
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
 from sklearn import preprocessing
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn import feature_selection
